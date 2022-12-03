@@ -1,19 +1,22 @@
 import os
-from modules import core
-img_path = input("Enter your folder path for analyzing")
-all_files= os.listdir(img_path)
-final_images = []
-for filename in all_files:
-    filepath = os.path.join(img_path, filename)
-    if filepath.endswith('jpeg') or filepath.endswith('jpg'):
-        if os.path.isfile(filepath):
-            final_images.append(filepath)
-result = core.analyze(final_images)
+import shutil
+from pathlib import Path
+from modules import image_extractor,core
+input_img = input("Enter your folder path for analyzing")
+image_extractor.check_folder(input_img)
+unprocessed = os.path.join(input_img, "unprocessed")
+processed = os.path.join(input_img,'processed')
+deepFace = image_extractor.image_list(unprocessed)
+result = core.analyze(deepFace)
 happy_count = 0
 sad_count = 0
+count = 0
 for i in result:
     if(result[i]['dominant_emotion']=='happy'):
         happy_count += 1
+        shutil.move(deepFace[count],os.path.join(processed,"happy"))
     else :
         sad_count+=1
-print(happy_count, sad_count)
+        shutil.move(deepFace[count],os.path.join(processed,"sad"))
+    count+=1
+print("No. of Happy peoples are ",happy_count,"and sad are", sad_count)
